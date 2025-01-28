@@ -8,7 +8,7 @@ import subprocess
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
-redis_server = redis.Redis(host="YOUR_REDIS_SERVER")
+redis_server = redis.Redis(host="localhost", port=6379)
 
 geolocator = Nominatim(user_agent="my_request")
 region = ", Lund, Skåne, Sweden"

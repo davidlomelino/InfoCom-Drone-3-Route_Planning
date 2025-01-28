@@ -1,14 +1,17 @@
 import math
 import requests
 import argparse
+import redis
 
 #Write you own function that moves the drone from one place to another 
 #the function returns the drone's current location while moving
 #====================================================================================================
+redis_server = redis.Redis(host="localhost", port=6379)
+
 def your_function():
-    longitude = 13.21008
-    latitude = 55.71106
-    return (longitude, latitude)
+    longitude = float(redis_server.get("longitude"))
+    latitude = float(redis_server.get("latitude"))
+    return longitude, latitude
 #====================================================================================================
 
 
@@ -18,13 +21,27 @@ def run(current_coords, from_coords, to_coords, SERVER_URL):
     # 2. Plan a path with your own function, so that the drone moves from [current_address] to [from_address], and the from [from_address] to [to_address]. 
     # 3. While moving, the drone keeps sending it's location to the database.
     #====================================================================================================
+
     while True:
-        drone_coords = your_function()
+        current_coords = your_function()
         with requests.Session() as session:
-            drone_location = {'longitude': drone_coords[0],
-                              'latitude': drone_coords[1]
+            drone_location = {'longitude': current_coords[0],
+                              'latitude': current_coords[1]
                         }
             resp = session.post(SERVER_URL, json=drone_location)
+        if (current_coords == from_coords):
+            break
+        
+    while True:
+        current_coords = your_function()
+        with requests.Session() as session:
+            drone_location = {'longitude': current_coords[0],
+                              'latitude': current_coords[1]
+                        }
+            resp = session.post(SERVER_URL, json=drone_location)
+        if (from_coords == to_chords):
+            break
+    
   #====================================================================================================
 
    
