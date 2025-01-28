@@ -11,7 +11,27 @@ redis_server = redis.Redis(host="localhost", port=6379)
 def your_function():
     longitude = float(redis_server.get("longitude"))
     latitude = float(redis_server.get("latitude"))
-    return longitude, latitude
+    
+        # Simulera rörelse genom att justera koordinaterna
+    fromlongitude = from_coords[0]
+    fromlatitude = from_coords[1]
+
+    # Uppdatera Redis med de nya koordinaterna
+    redis_server.set("longitude", fromlongitude)
+    redis_server.set("latitude", fromlatitude)
+    
+    return nfromlongitude, fromlatitude
+
+    tolongitude = to_coords[0]
+    tolatitude = to_coords[1]
+
+    # Uppdatera Redis med de nya koordinaterna
+    redis_server.set("longitude", tolongitude)
+    redis_server.set("latitude", tolatitude)
+    
+    return tolongitude, tolatitude
+
+
 #====================================================================================================
 
 
@@ -39,7 +59,7 @@ def run(current_coords, from_coords, to_coords, SERVER_URL):
                               'latitude': current_coords[1]
                         }
             resp = session.post(SERVER_URL, json=drone_location)
-        if (from_coords == to_chords):
+        if (from_coords == to_coords):
             break
     
   #====================================================================================================
