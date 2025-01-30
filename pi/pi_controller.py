@@ -1,70 +1,40 @@
 import math
 import requests
 import argparse
-import redis
+import time
+from sense_hat import SenseHat
 
 #Write you own function that moves the drone from one place to another 
 #the function returns the drone's current location while moving
 #====================================================================================================
-redis_server = redis.Redis(host="localhost", port=6379)
-
-def your_function():
-    longitude = float(redis_server.get("longitude"))
-    latitude = float(redis_server.get("latitude"))
-    
-        # Simulera rörelse genom att justera koordinaterna
-    fromlongitude = from_coords[0]
-    fromlatitude = from_coords[1]
-
-    # Uppdatera Redis med de nya koordinaterna
-    redis_server.set("longitude", fromlongitude)
-    redis_server.set("latitude", fromlatitude)
-    
-    return nfromlongitude, fromlatitude
-
-    tolongitude = to_coords[0]
-    tolatitude = to_coords[1]
-
-    # Uppdatera Redis med de nya koordinaterna
-    redis_server.set("longitude", tolongitude)
-    redis_server.set("latitude", tolatitude)
-    
-    return tolongitude, tolatitude
-
-
+def your_function(): 
+    longitude = 13.21008 #home x
+    latitude = 55.71106 # home y
+    sense.clear()
+    return (longitude, latitude)
 #====================================================================================================
 
-
-def run(current_coords, from_coords, to_coords, SERVER_URL):
-    # Complete the while loop:
-    # 1. Change the loop condition so that it stops sending location to the data base when the drone arrives the to_address
-    # 2. Plan a path with your own function, so that the drone moves from [current_address] to [from_address], and the from [from_address] to [to_address]. 
-    # 3. While moving, the drone keeps sending it's location to the database.
-    #====================================================================================================
-
-    while True:
-        current_coords = your_function()
-        with requests.Session() as session:
-            drone_location = {'longitude': current_coords[0],
-                              'latitude': current_coords[1]
-                        }
-            resp = session.post(SERVER_URL, json=drone_location)
-        if (current_coords == from_coords):
-            break
-        
-    while True:
-        current_coords = your_function()
-        with requests.Session() as session:
-            drone_location = {'longitude': current_coords[0],
-                              'latitude': current_coords[1]
-                        }
-            resp = session.post(SERVER_URL, json=drone_location)
-        if (from_coords == to_coords):
-            break
+def travel(xfrom, yfrom, xto, yto):
+    travelspeed = 0.0005 
+    distance = math.sqrt((xto-xfrom)**2 + (yto-yfrom)**2) #from start to goal with pythagoras 
     
-  #====================================================================================================
+    #(distance/travelspeed = nbrOfSteps)
+    #updating current location during travel
 
-   
+    for i in range(1, int(distance/travelspeed) + 1): #rounded to integer
+        x = xfrom + (xto-xfrom)/ (distance / travelspeed) * i 
+        y = yfrom + (yto-yfrom)/(distance/travelspeed) * i
+        
+        with requests.Session() as session:
+            drone_location = {'longitude': x,'latitude': y}
+            resp = session.post(SERVER_URL, json=drone_location)
+        time.sleep(0.1)
+        
+#method2
+def run(current_coords, from_coords, to_coords, SERVER_URL):
+    travel(current_coords[0], current_coords[1], from_coords[0], from_coords[1])
+    travel(from_coords[0], from_coords[1], to_coords[0], to_coords[1])
+     
 if __name__ == "__main__":
     SERVER_URL = "http://127.0.0.1:5001/drone"
 
